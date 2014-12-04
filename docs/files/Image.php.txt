@@ -1,0 +1,115 @@
+<?php
+    /**
+     * pBarcode
+     * Copyright (C) 2014 Vladimir P.
+     * 
+     * Permission is hereby granted, free of charge, to any person obtaining a copy
+     * of this software and associated documentation files (the "Software"), to deal
+     * in the Software without restriction, including without limitation the rights
+     * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+     * copies of the Software, and to permit persons to whom the Software is
+     * furnished to do so, subject to the following conditions:
+     * 
+     * The above copyright notice and this permission notice shall be included in
+     * all copies or substantial portions of the Software.
+     * 
+     * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+     * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+     * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+     * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+     * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+     * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+     * THE SOFTWARE.
+     */
+	
+	namespace pBarcode;
+	
+    /**
+     * An image for barcodes.
+     * @copyright 2014 Vladimir P.
+     * @license MIT
+     */
+	final class Image {
+        /**
+         * Width of the image.
+         * @var int
+         */
+		private $width;
+        
+        /**
+         * Height of the image.
+         * @var int
+         */
+		private $height;
+        
+        /**
+         * Pixels of the image. A pixel at (x, y) can be accessed by $bitmap[y][x].
+         * @var int[][]
+         */
+		private $bitmap;
+		
+        /**
+         * Creates a new image with a given width and height.
+         * @param int $width
+         * @param int $height
+         */
+		public function __construct($width, $height) {
+			$this->width = $width;
+			$this->height = $height;
+			
+			$this->bitmap = array();
+			for($y = 0; $y < $height; ++$y) {
+				$this->bitmap[$y] = array();
+				for($x = 0; $x < $width; ++$x)
+					$this->bitmap[$y][$x] = 0;
+			}
+		}
+		
+        /**
+         * Sets the value of a pixel at ($x, $y) to $value.
+         * @param int $x
+         * @param int $y
+         * @param int $value
+         * @return void
+         */
+		public function setPixel($x, $y, $value) {
+			$this->bitmap[$y][$x] = $value;
+		}
+		
+        /**
+         * Returns the value of a pixel at ($x, $y).
+         * @param int $x
+         * @param int $y
+         * @return int
+         */
+		public function getPixel($x, $y) {
+			return isset($this->bitmap[$y][$x]) ? $this->bitmap[$y][$x] : false;
+		}
+		
+        /**
+         * Returns the width of the image.
+         * @return int
+         */
+		public function getWidth() {
+			return $this->width;
+		}
+		
+        /**
+         * Returns the height of the image.
+         * @return int
+         */
+		public function getHeight() {
+			return $this->height;
+		}
+		
+		/**
+         * Deletes rows of pixels and shortens the height of the image.
+         * @param int $y Index of the first row to remove. If negative, the first removed row will be (height - |$y|)
+         * @param int $n How many rows to remove after the first one.
+         * @return void
+         */
+		public function deleteRows($y, $n = 1) {
+			array_splice($this->bitmap, $y, $n);
+			$this->height -= $n;
+		}
+	}

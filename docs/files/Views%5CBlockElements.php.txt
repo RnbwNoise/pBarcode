@@ -1,0 +1,97 @@
+<?php
+    /**
+     * pBarcode
+     * Copyright (C) 2014 Vladimir P.
+     * 
+     * Permission is hereby granted, free of charge, to any person obtaining a copy
+     * of this software and associated documentation files (the "Software"), to deal
+     * in the Software without restriction, including without limitation the rights
+     * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+     * copies of the Software, and to permit persons to whom the Software is
+     * furnished to do so, subject to the following conditions:
+     * 
+     * The above copyright notice and this permission notice shall be included in
+     * all copies or substantial portions of the Software.
+     * 
+     * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+     * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+     * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+     * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+     * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+     * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+     * THE SOFTWARE.
+     */
+	
+	namespace pBarcode\Views;
+	use pBarcode\Image as Image;
+	
+    /**
+     * A view that renders Images using Unicode block elements.
+     * @copyright 2014 Vladimir P.
+     * @license MIT
+     */
+	final class BlockElements extends View {
+		/**
+         * Width of the rendered image in characters.
+         * @var int|null
+         */
+		private $width = null;
+        
+        /**
+         * Returns the width of the rendered image in characters.
+         * @return int
+         */
+		public function getWidth() {
+            if($this->width === null)
+                $this->render();
+			return $this->width;
+		}
+		
+		/**
+         * Creates a rendered image.
+         * @return void
+         */
+		protected function render() {
+			$this->result = '';
+			
+			$imgWidth = $this->image->getWidth();
+			$imgHeight = $this->image->getHeight();
+			
+			// Saves horizontal space. Width of each pixel is equal to 1/4 of its height
+			// (assuming that the height of block elements is twice their width).
+			if(($imgWidth / 4) > $imgHeight) {
+				$this->width = ceil($imgWidth / 2);
+				
+				for($y = 0; $y < $imgHeight; ++$y) {
+					if($y !== 0)
+						$this->result .= "\n";
+					for($x = 0; $x < $imgWidth; $x += 2) {
+						$e00 = $this->image->getPixel($x, $y);
+						$e10 = $this->image->getPixel($x + 1, $y);
+						if($e00)
+							$this->result .= $e10 ? '█' : '▌';
+						else
+							$this->result .= $e10 ? '▐' : ' ';
+					}
+				}
+			}
+			
+			// Saves vertical space. Each pixel has an aspect ratio of approx. 1:1.
+			else {
+				$this->width = $imgWidth;
+				
+				for($y = 0; $y < $imgHeight; $y += 2) {
+					if($y !== 0)
+						$this->result .= "\n";
+					for($x = 0; $x < $imgWidth; ++$x) {
+						$e00 = $this->image->getPixel($x, $y);
+						$e01 = $this->image->getPixel($x, $y + 1);
+						if($e00)
+							$this->result .= $e01 ? '█' : '▀';
+						else
+							$this->result .= $e01 ? '▄' : ' ';
+					}
+				}
+			}
+		}
+	}
